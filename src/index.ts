@@ -1,8 +1,9 @@
-import {PDKAbstractDataTypes, PDKUtils} from '@interactiveplus/pdk2021-common';
 import { ContentSenderInterface } from '@interactiveplus/pdk2021-backendcore/dist/AbstractFactoryTypes/Communication/CommunicationSender/Content/ContentSenderInterface';
 import dm, { SingleSendMailRequest, SingleSendMailResponse } from '@alicloud/dm20151123';
 import {Config} from '@alicloud/openapi-client';
 import { CommunicationContent } from '@interactiveplus/pdk2021-backendcore/dist/AbstractFactoryTypes/Communication/CommunicationSender/Content/CommunicationContent';
+import { PDKSenderServiceError } from '@interactiveplus/pdk2021-common/dist/AbstractDataTypes/Error/PDKException';
+import { EmailRegexFormat } from '@interactiveplus/pdk2021-common/dist/Utilities/FormatUtil';
 
 const AliCloudDMEndPoints = {
     EastCN1: 'dm.aliyuncs.com',
@@ -37,7 +38,7 @@ class AliCloudDMEmailSender implements ContentSenderInterface<string>{
     }
 
     canSendTo(address : string){
-        return new RegExp(PDKUtils.EmailRegexFormat,'g').test(address);
+        return new RegExp(EmailRegexFormat,'g').test(address);
     }
 
     async sendContent(address : string, content: CommunicationContent) : Promise<void>{
@@ -51,7 +52,7 @@ class AliCloudDMEmailSender implements ContentSenderInterface<string>{
             htmlBody: content.content,
             subject: content.title === undefined ? '(No Subject)' : content.title
         })).catch((reason)=>{
-            throw new PDKAbstractDataTypes.PDKSenderServiceError('Failed to send email: ' + JSON.stringify(reason));
+            throw new PDKSenderServiceError('Failed to send email: ' + JSON.stringify(reason));
         }).then((response : SingleSendMailResponse) => {
             return;
         });
